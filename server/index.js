@@ -1,7 +1,6 @@
 const dotenv = require(“dotenv”);
-const app = require(”./app”);
-
 dotenv.config();
 
-module.exports = app;
+const app = require(”./app”);
 
+module.exports = app;
