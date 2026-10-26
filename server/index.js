@@ -4,3 +4,4 @@ const app = require(”./app”);
 dotenv.config();
 
 module.exports = app;
+
