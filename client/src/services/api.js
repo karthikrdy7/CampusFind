@@ -1,6 +1,9 @@
-const API_URL = `${
+
+const BASE_URL = (
   import.meta.env.VITE_API_URL || "http://localhost:5001"
-}/api/items`;
+).replace(/\/+$/, "");
+
+const API_URL = `${BASE_URL}/api/items`;
 
 export const getItems = async () => {
   const response = await fetch(API_URL);
