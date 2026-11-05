@@ -1,5 +1,7 @@
-const API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5001";
+
+const BASE_URL = (
+  import.meta.env.VITE_API_URL || "http://localhost:5001"
+).replace(/\/+$/, "");
 
 export const uploadImage = async (file) => {
   if (!file) return "";
@@ -8,7 +10,7 @@ export const uploadImage = async (file) => {
   formData.append("image", file);
 
   const response = await fetch(
-    `${API_URL}/api/items/upload`,
+    `${BASE_URL}/api/items/upload`,
     {
       method: "POST",
       body: formData,
@@ -27,5 +29,5 @@ export const uploadImage = async (file) => {
 export const getImageUrl = (imageId) => {
   if (!imageId) return "";
 
-  return `${API_URL}/api/items/image/${imageId}`;
+  return `${BASE_URL}/api/items/image/${imageId}`;
 };
