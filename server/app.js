@@ -9,11 +9,12 @@ const app = express();
 let connectionPromise;
 
 // Enable CORS before API routes
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-  })
-);
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://campus-find-flame.vercel.app"
+  ]
+}));
 
 app.use(express.json({ limit: "100kb" }));
 
