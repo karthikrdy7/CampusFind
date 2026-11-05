@@ -6,58 +6,69 @@ const itemRoutes = require("./routes/itemRoutes");
 
 const app = express();
 
-let connectionPromise;
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://campus-find-flame.vercel.app"
+];
 
-// Enable CORS before API routes
+// CORS configuration
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://campus-find-flame.vercel.app"
-  ]
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: false
+}));
+
+// Handle preflight requests
+app.options(/.*/, cors({
+  origin: allowedOrigins
 }));
 
 app.use(express.json({ limit: "100kb" }));
 
-// Home route
+// Health check
 app.get("/", (_req, res) => {
   res.json({
-    message: "CampusFind API is running.",
+    message: "CampusFind API is running."
   });
 });
 
-// Connect MongoDB before processing API requests
-app.use("/api/items", (req, res, next) => {
-  if (mongoose.connection.readyState === 1) {
-    return next();
-  }
+// Reuse MongoDB connection
+let connectionPromise;
 
-  if (!process.env.MONGO_URI) {
-    return res.status(503).json({
-      message: "Database is not configured.",
+app.use("/api/items", async (req, res, next) => {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      return next();
+    }
+
+    if (!process.env.MONGO_URI) {
+      return res.status(503).json({
+        message: "Database is not configured."
+      });
+    }
+
+    if (!connectionPromise) {
+      connectionPromise = mongoose.connect(process.env.MONGO_URI)
+        .catch((error) => {
+          connectionPromise = null;
+          throw error;
+        });
+    }
+
+    await connectionPromise;
+    next();
+
+  } catch (error) {
+    console.error("MongoDB connection failed:", error.message);
+
+    res.status(503).json({
+      message: "Database is unavailable."
     });
   }
-
-  if (!connectionPromise) {
-    connectionPromise = mongoose
-      .connect(process.env.MONGO_URI)
-      .catch((error) => {
-        connectionPromise = null;
-        throw error;
-      });
-  }
-
-  connectionPromise
-    .then(() => next())
-    .catch((error) => {
-      console.error("MongoDB connection failed:", error.message);
-
-      res.status(503).json({
-        message: "Database is unavailable.",
-      });
-    });
 });
 
-// Item and image routes
+// API routes
 app.use("/api/items", itemRoutes);
 
 module.exports = app;
