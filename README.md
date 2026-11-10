@@ -80,7 +80,7 @@ Users can remove item reports when they are no longer required.
 The application is designed to work across desktop, tablet, and mobile screen sizes.
 
 Project Structure
-
+~~~
 CampusFind/
 │
 ├── client/
@@ -112,6 +112,7 @@ CampusFind/
 │
 ├── .gitignore
 └── README.md
+~~~
 
 Installation and Setup
 
